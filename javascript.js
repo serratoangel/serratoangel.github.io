@@ -1,30 +1,38 @@
-const apiData = {
-    url: "https://pokeapi.co/api/v2/",
-    type: "pokemon",
-    id: "132"
+const poke_container = document.getElementById(`poke_container`);
+const pokemons_number = 150;
+
+// this is an arrow function and it's going to iterate all the pokemons
+const fetchPokemons = async () => {
+    for (let i = 1; i <= pokemons_number; i++) {
+        await getPokemon(i);
+    }
 }
 
-const { url, type, id } = apiData
-const apiUrl = `${url}${type}/${id}`
-//const apiUrl = `${apiData.url}${apiData.type}/${apiData.id}`
+// an arrow function to get the pok by id
+const getPokemon = async id => {
+    const url = `https://pokeapi.co/api/v2/pokemon/${id}`;
+    const res = await fetch(url);
+    const pokemon = await res.json();
+    createPokemonCard(pokemon);
+}
 
-
-fetch(apiUrl)
-    // this is an arrow function
-    .then((data) => data.json())
-    .then((pokemon) => generateHtml(pokemon))
-
-const generateHtml = (data) => {
-    console.log(data)
-    const html = `
-        <div class="name">${data.name}</div>
-        <img src=${data.sprites.front_default}/>
-        <div class="details">
-            <span>Height: ${data.height}</span>
-            <span>Weight: ${data.weight}</span>
+const createPokemonCard = (pokemon) => {
+    const pokemonEl = document.createElement(`div`);
+    pokemonEl.classList.add(`pokemon`);
+    const { id, name, sprites, types } = pokemon;
+    const type = types[0].type.name;
+    const pokeInnerHTML = `
+        <div class="img-container">
+            <img src="${sprites.front_default}" alt="${name}"/>
         </div>
-    `
-    const pokemonDiv = document.querySelector(`.pokemon`)
-    pokemonDiv.innerHTML = html
-
+        <div class="info">
+            <span class="number">${id}</span>
+            <h3 class="name">${name}</h3>
+            <small class="type">Type: <span>${type}</span></small>
+        </div>
+    `;
+    pokemonEl.innerHTML = pokeInnerHTML;
+    poke_container.appendChild(pokemonEl);
 }
+
+fetchPokemons();
